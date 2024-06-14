@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>React Test</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src='https://unpkg.com/babel-standalone@6.26.0/babel.js'></script>
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"
+    integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState } = React;
+
+    const NameFormComponent = ({ addName }) => {
+      const [name, setName] = useState('');
+
+      const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        const age = await fetchAge(name);
+        addName(name, age);
+        setName('');
+      };
+
+      return (
+        <form onSubmit={handleSubmit}>
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Enter name"
+          />
+          <button type="submit">Submit</button>
+        </form>
+      );
+    };
+
+    const fetchAge = async (name) => {
+      try {
+        const response = await $.ajax({
+          url: `https://api.agify.io/?name=${name}`,
+          method: 'GET',
+        });
+
+        const { age } = response;
+
+        return age;
+
+      } 
+      catch (error) {
+        throw error;
+      }
+    };
+
+    const App = () => {
+      const [nameAges, setNameAges] = useState({});
+
+      const addName = (name, age) => {
+        setNameAges((prev) => ({
+          ...prev,
+          [name]: age,
+        }));
+      };
+
+      return (
+        <div>
+          <h1>Cloverhound Software Developer Interview Challenge</h1>
+          <NameFormComponent addName={addName} />
+          <div>
+            {Object.entries(nameAges).map(([name, age]) => (
+              <div key={name}>
+                <p>{`${name}: ${age}`}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    };
+
+    ReactDOM.render(<App />, document.querySelector('#root'));
+  </script>
+</body>
+
+</html>
